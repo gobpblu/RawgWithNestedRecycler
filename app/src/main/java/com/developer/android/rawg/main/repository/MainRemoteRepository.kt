@@ -10,14 +10,9 @@ import com.developer.android.rawg.utils.Utils.API_KEY
 class MainRemoteRepository(
     private val api: RawgApi
 ): MainRepository {
-    override suspend fun getGames(page: Int, genres: String, typeOfView: Int): Games {
+    override suspend fun getGames(page: Int, genres: String): Games {
         val data = api.getGames(API_KEY, genres, page)
-        return when(typeOfView) {
-            Utils.TYPE_OF_VIEW_FULL_GAMES -> MainConverter.fromNetwork(data)
-            Utils.TYPE_OF_VIEW_DIFFERENT_GAMES -> MainConverter.fromNetworkWithDifferentTypes(data)
-            else -> { throw IllegalStateException("Not found such type of view") }
-        }
-
+        return MainConverter.fromNetwork(data)
     }
 
     override suspend fun getGenres(): Genres {

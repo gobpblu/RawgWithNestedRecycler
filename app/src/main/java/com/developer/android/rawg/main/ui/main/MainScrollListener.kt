@@ -2,21 +2,23 @@ package com.developer.android.rawg.main.ui.main
 
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import timber.log.Timber
+import com.developer.android.rawg.main.model.genres.GameGenre
+
+const val VISIBLE_THRESHOLD = 10
 
 class MainScrollListener(
     private val layoutManager: LinearLayoutManager,
-    private val loadNextPage: (Int) -> Unit
+    private val loadNextPage: (GameGenre) -> Unit,
+    private val gameGenre: GameGenre
 ): RecyclerView.OnScrollListener() {
 
     private var isLoading = true
+
     private var totalLoadedItems = 0
-
-    private var currentPage = 1
-
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
 
+        gameGenre.latestScrollPosition = layoutManager.findFirstVisibleItemPosition()
         val visibleItems = layoutManager.childCount
         val totalItems = layoutManager.itemCount
         val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
@@ -29,10 +31,10 @@ class MainScrollListener(
             return
         }
 
-        val shouldLoadMore = totalItems - visibleItems <= firstVisibleItemPosition + 10
+        val shouldLoadMore = totalItems - visibleItems <= firstVisibleItemPosition + VISIBLE_THRESHOLD
         if (!isLoading && shouldLoadMore) {
-            currentPage++
-            loadNextPage(currentPage)
+            gameGenre.page++
+            loadNextPage(gameGenre)
             isLoading = true
         }
     }
@@ -40,6 +42,6 @@ class MainScrollListener(
     fun reset() {
         isLoading = false
         totalLoadedItems = 0
-        currentPage = 1
+        gameGenre.page = 1
     }
 }

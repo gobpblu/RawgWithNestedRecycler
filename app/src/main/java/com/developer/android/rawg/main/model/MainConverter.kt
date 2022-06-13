@@ -4,7 +4,7 @@ import com.developer.android.rawg.main.api.model.games.*
 import com.developer.android.rawg.main.api.model.genres.GenreDetailsResponse
 import com.developer.android.rawg.main.api.model.genres.GenresResponse
 import com.developer.android.rawg.main.model.games.*
-import com.developer.android.rawg.main.model.genres.GenreGame
+import com.developer.android.rawg.main.model.genres.GameGenre
 import com.developer.android.rawg.main.model.genres.Genres
 import com.developer.android.rawg.utils.Utils
 
@@ -18,10 +18,10 @@ object MainConverter {
             games = gamesFromNetwork(response.games)
         )
 
-    fun fчromNetwork(response: GenresResponse) =
+    fun fromNetwork(response: GenresResponse) =
         Genres(
             count = response.count,
-            games = genreGamesFromNetwork(response.genres)
+            gamesGenres = genreGamesFromNetwork(response.genres)
         )
 
     fun gamesFromNetwork(games: List<GameDetailsResponse>) =
@@ -82,21 +82,6 @@ object MainConverter {
         type = type
     )
 
-    /*private fun gamesFromNetwork(games: List<GameDetailsResponse>) =
-        games.map {
-            GameDetails(
-                name = it.name,
-                released = it.released,
-                backgroundImage = it.backgroundImage,
-                rating = it.rating,
-                metaCritic = it.metaCritic,
-                playTime = it.playTime,
-                updated = it.updated,
-                shortScreenshots = shortScreenshotsFromNetwork(it.shortScreenshots),
-                parentPlatforms = parentPlatformsFromNetwork(it.parentPlatforms)
-            )
-        }*/
-
     private fun shortScreenshotsFromNetwork(shortScreenshots: List<ShortScreenshotResponse>) =
         shortScreenshots.map {
             ShortScreenshot(
@@ -121,8 +106,7 @@ object MainConverter {
 
     private fun genreGamesFromNetwork(genres: List<GenreDetailsResponse>) =
         genres.map {
-            GenreGame(
-                id = it.id,
+            GameGenre(
                 name = it.name,
                 slug = it.slug
             )

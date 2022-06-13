@@ -1,11 +1,15 @@
 package com.developer.android.rawg.main.ui.main
 
+import android.util.Log
+import android.util.Log.i
 import com.developer.android.rawg.common.mvp.BasePresenter
 import com.developer.android.rawg.common.ui.recyclerview.PagingState
 import com.developer.android.rawg.main.interactor.MainInteractor
-import com.developer.android.rawg.main.model.GameTypes
-import com.developer.android.rawg.utils.Utils
-import kotlinx.coroutines.*
+import com.developer.android.rawg.main.model.genres.GameGenre
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class MainPresenter(
@@ -13,8 +17,6 @@ class MainPresenter(
 ) : BasePresenter<MainContract.View>(),
     MainContract.Presenter {
     private var coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
-    private var games = mutableListOf<GameTypes?>()
-    private var paginationEnded = false
 
     override fun getGenres() {
 
@@ -30,34 +32,31 @@ class MainPresenter(
         }
     }
 
-    override suspend fun getGames(page: Int, genre: String): List<GameTypes?> {
-//        if (paginationEnded) return
+    override fun getGames(gameGenre: GameGenre) {
 
-        val games = coroutineScope.async {
-//            try {
-//                view?.showPagingState(PagingState.Loading)
-                val data = interactor.getGames(page, genre, Utils.TYPE_OF_VIEW_FULL_GAMES)
-                /*if (data.count == 0) {
-                    paginationEnded = true
-                } else {*/
-                    data.games
-/*//                }
+        coroutineScope.launch {
+            try {
+//                view?.showPagingState(PagingState.Loading, gameGenre.position)
+                val data = interactor.getGames(gameGenre.page, gameGenre.slug)
+//                view?.showPagingState(PagingState.Idle, gameGenre.position)
+                Timber.tag("###").i("${gameGenre.position}")
+                view?.showGames(data.games, gameGenre.position)
             } catch (e: CancellationException) {
                 Timber.e("Cancelled loading request")
             } catch (t: Throwable) {
                 Timber.e(t.message)
-//                view?.showPagingState(PagingState.Error(t))
-            }*/
+            }
+            finally {
+//                view?.showPagingState(PagingState.Idle, gameGenre.position)
+            }
         }
-        return games.await()
     }
 
-    override fun refresh(adapterIndex: Int, page: kotlin.Int, genres: String) {
-        paginationEnded = false
+    override fun refresh(gameGenre: GameGenre) {
 
         coroutineScope.launch {
             view?.showRefreshing(true)
-            getGames(page, genres)
+            getGames(gameGenre)
             view?.showRefreshing(false)
         }
     }

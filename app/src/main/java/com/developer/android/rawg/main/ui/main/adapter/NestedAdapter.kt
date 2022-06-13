@@ -3,23 +3,20 @@ package com.developer.android.rawg.main.ui.main.adapter
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.developer.android.rawg.R
 import com.developer.android.rawg.common.ui.recyclerview.PagingState
 import com.developer.android.rawg.main.model.GameTypes
-import com.developer.android.rawg.main.model.games.Genre
-import com.developer.android.rawg.main.model.genres.GenreGame
-import timber.log.Timber
 import kotlin.Int
 
 
 class NestedAdapter(
-    private val getGamesByGenre: (GenreGame) -> List<GameTypes>,
     private val onGameItemClicked: (GameTypes.FullGame) -> Unit,
-    private val onFailedListener: () -> Unit
+    private val onFailedListener: () -> Unit,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val data = mutableListOf<GameTypes?>()
+    private val data = mutableListOf<GameTypes.FullGame>()
     private var pagingState: PagingState = PagingState.Idle
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -74,9 +71,33 @@ class NestedAdapter(
         }
     }
 
-    fun setItems(games: List<GameTypes?>) {
-        data.addAll(games)
-        notifyDataSetChanged()
+    fun setItems(newList: List<GameTypes.FullGame>) {
+        val oldList = ArrayList(data)
+        data.clear()
+        data.addAll(newList)
+        DiffUtil.calculateDiff(getDiffCallback(oldList, newList)).dispatchUpdatesTo(this)
+    }
+
+    private fun getDiffCallback(
+        oldList: List<GameTypes.FullGame>,
+        newList: List<GameTypes.FullGame>,
+    ) = object : DiffUtil.Callback() {
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            val oldItem = oldList[oldItemPosition]
+            val newItem = newList[newItemPosition]
+            return oldItem.name == newItem.name
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            val old = oldList[oldItemPosition]
+            val new = newList[newItemPosition]
+            return old == new
+        }
+
+        override fun getOldListSize(): Int = oldList.size
+
+        override fun getNewListSize(): Int = newList.size
     }
 
     fun clearItems() {

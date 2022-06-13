@@ -8,6 +8,7 @@ import com.developer.android.rawg.R
 import com.developer.android.rawg.databinding.GameItemBinding
 import com.developer.android.rawg.main.model.GameTypes
 import com.developer.android.rawg.main.model.games.ParentPlatformContainer
+import timber.log.Timber
 
 class MainViewHolder(
     private val binding: GameItemBinding,
@@ -37,6 +38,7 @@ class MainViewHolder(
 
     fun bind(item: GameTypes.FullGame){
         with(binding) {
+            Timber.i("MainViewHolder")
             Glide.with(itemView.context).load(item.backgroundImage)
                 .placeholder(R.drawable.abstract_game).into(imageViewIcon)
             textViewName.text = item.name

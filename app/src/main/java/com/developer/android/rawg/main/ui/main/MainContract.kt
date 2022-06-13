@@ -5,6 +5,7 @@ import com.developer.android.rawg.common.mvp.MvpPresenter
 import com.developer.android.rawg.common.mvp.MvpView
 import com.developer.android.rawg.common.ui.recyclerview.PagingState
 import com.developer.android.rawg.main.model.GameTypes
+import com.developer.android.rawg.main.model.genres.GameGenre
 import com.developer.android.rawg.main.model.genres.Genres
 
 
@@ -12,16 +13,16 @@ interface MainContract : BaseFragmentContract {
 
     interface View : MvpView {
         fun showGenres(genres: Genres)
-        fun showGames(games: List<GameTypes?>)
-        fun showPagingState(state: PagingState)
+        fun showGames(games: List<GameTypes?>, position: Int)
         fun showRefreshing(isRefreshing: Boolean)
         fun showErrorMessage(e: Throwable)
+        fun showPagingState(pagingState: PagingState, position: Int)
     }
 
     interface Presenter : MvpPresenter<View> {
         fun getGenres()
-        suspend fun getGames(page: Int = 1, genre: String): List<GameTypes?>
-        fun refresh(adapterIndex: Int, page: Int = 1, genres: String)
+        fun getGames(gameGenre: GameGenre)
+        fun refresh(gameGenre: GameGenre)
     }
 
 }
